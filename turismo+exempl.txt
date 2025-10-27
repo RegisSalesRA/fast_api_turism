@@ -1,0 +1,82 @@
+app/
+│
+├── core/                         
+│   ├── config.py                  # Configurações do app (env, DB, etc.)
+│   ├── exceptions.py              # Exceções e handlers globais
+│   ├── security.py                # Esqueleto de auth/JWT (pronto para futura implementação)
+│   └── dependencies.py            # Dependências globais (injeção de services, db, etc.)
+│
+├── domain/                        
+│   ├── entities/                  
+│   │   ├── ponto_turistico.py     # Entidade PontoTuristico
+│   │   ├── cidade.py              # Entidade Cidade
+│   │   └── categoria.py           # Entidade Categoria
+│   │
+│   ├── repositories/              
+│   │   ├── ponto_repository.py    # Interface do repositório de Pontos
+│   │   ├── cidade_repository.py   # Interface do repositório de Cidades
+│   │   └── categoria_repository.py# Interface do repositório de Categorias
+│   │
+│   ├── services/                  
+│   │   ├── ponto/                 
+│   │   │   ├── create_ponto.py
+│   │   │   ├── list_pontos.py
+│   │   │   ├── update_ponto.py
+│   │   │   ├── delete_ponto.py
+│   │   │   └── search_pontos.py  # Busca por nome, filtros combinados
+│   │   └── categoria/             
+│   │       └── list_categorias.py
+│   │
+│   └── value_objects/             
+│       └── nota.py                # Valor imutável para nota, validação
+│
+├── infrastructure/                
+│   ├── database/                  
+│   │   ├── models/                
+│   │   │   ├── ponto_model.py
+│   │   │   ├── cidade_model.py
+│   │   │   └── categoria_model.py
+│   │   │
+│   │   └── repositories/          # Implementações concretas dos repositórios
+│   │       ├── ponto_repository_impl.py
+│   │       ├── cidade_repository_impl.py
+│   │       └── categoria_repository_impl.py
+│   │
+│   ├── api/                       
+│   │   ├── routers/               
+│   │   │   ├── ponto_router.py
+│   │   │   ├── cidade_router.py
+│   │   │   └── categoria_router.py
+│   │   │
+│   │   ├── schemas/               
+│   │   │   ├── requests/
+│   │   │   │   ├── create_ponto.py
+│   │   │   │   ├── update_ponto.py
+│   │   │   │   └── create_categoria.py
+│   │   │   │
+│   │   │   └── responses/
+│   │   │       ├── ponto_detail.py
+│   │   │       ├── ponto_list.py
+│   │   │       └── categoria_list.py
+│   │   │
+│   │   └── dependencies.py        # Injeção de services para as rotas
+│   │
+│   ├── clients/                   
+│   │   └── external_client.py     # Integrações externas (opcional)
+│   │
+│   └── mappers/                   
+│       ├── ponto_mapper.py
+│       ├── cidade_mapper.py
+│       └── categoria_mapper.py
+│
+├── tests/                         
+│   ├── domain/
+│   │   ├── ponto/
+│   │   └── categoria/
+│   ├── infrastructure/
+│   │   └── api/
+│   │       ├── routers/
+│   │       └── schemas/
+│   └── integration/
+│
+└── main.py                        # Inicialização FastAPI
