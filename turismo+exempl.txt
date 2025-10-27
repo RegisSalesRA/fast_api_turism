@@ -80,3 +80,137 @@ app/
 │   └── integration/
 │
 └── main.py                        # Inicialização FastAPI
+
+
+
+
+
+1️⃣ api/ – Camada de Entrada (Interface HTTP)
+
+Essa é a porta de entrada da aplicação, onde o FastAPI interage com o mundo externo (clientes, frontend, Postman, etc.). Tudo que envolve requisitar dados via HTTP fica aqui.
+
+🔹 routers/
+
+Função: definir os endpoints da API.
+
+É equivalente a views ou controllers em Django.
+
+Cada domínio do sistema geralmente tem seu próprio router (ponto_router, cidade_router…), facilitando modularidade e manutenção.
+
+Aqui você define:
+
+Rotas (GET, POST, PUT, DELETE)
+
+Parâmetros de URL
+
+Status codes (200, 201, 404…)
+
+Chamadas aos services do domínio (lógica de negócio)
+
+🔹 schemas/
+
+Função: definir estruturas de dados que entram e saem da API.
+
+São DTOs (Data Transfer Objects), não têm lógica de negócio.
+
+Separação comum:
+
+requests/ → dados que o cliente envia (input)
+
+responses/ → dados que o servidor devolve (output)
+
+Ajuda a validar dados automaticamente com Pydantic e manter o domínio isolado do HTTP.
+
+🔹 dependencies.py
+
+Função: centralizar injeção de dependências nas rotas.
+
+Por exemplo: criar instâncias de services, repositórios ou clients para serem usadas nos endpoints.
+
+Mantém os routers limpos, sem precisar criar objetos diretamente dentro das funções de rota.
+
+🔹 clients/
+
+Função: lidar com integrações externas, como:
+
+APIs de terceiros
+
+Filas (RabbitMQ, Kafka)
+
+Serviços HTTP externos
+
+Garante que o domínio não dependa de detalhes de implementação externa (separação de preocupações).
+
+Exemplo: um client para buscar dados de um serviço externo de previsão do tempo para o ponto turístico.
+
+🔹 mappers/
+
+Função: converter dados entre camadas:
+
+Entidades do domínio ↔ Models do banco ↔ Schemas do FastAPI
+
+Mantém o domínio puro, sem dependência de FastAPI ou SQLAlchemy.
+
+Evita lógica de conversão espalhada pelos serviços ou routers.
+
+2️⃣ database/ – Persistência de Dados
+
+Essa pasta é onde tudo relacionado ao banco de dados acontece. Ela é parte da infraestrutura, ou seja, detalhes técnicos que implementam os contratos definidos no domínio.
+
+🔹 models/
+
+Função: definir estruturas do banco usando SQLAlchemy (ou outro ORM).
+
+Cada entidade do domínio geralmente tem um model correspondente.
+
+Não contém regras de negócio, apenas mapeamento de dados e relacionamento (1:N, N:N).
+
+🔹 repositories/
+
+Função: implementar os contratos definidos em domain/repositories.
+
+Cada repository é responsável por:
+
+CRUD no banco
+
+Consultas complexas
+
+Filtragens específicas
+
+Mantém o domínio independente de detalhes de banco.
+
+Exemplo: ponto_repository_impl.py implementa PontoRepository definido no domínio.
+
+🔹 Resumo da lógica de fluxo
+
+Cliente faz requisição HTTP → rota do router
+
+Router valida dados com schemas/requests
+
+Router chama service do domínio (domain/services)
+
+Regras de negócio puras
+
+Service chama repository (database/repositories) para ler/escrever no banco
+
+Dados do banco passam pelo mapper para virar entidade de domínio
+
+Router devolve response usando schemas/responses
+
+Middleware, dependencies e clients podem atuar em qualquer ponto, sem bagunçar domínio
+
+💡 Dicas de boas práticas FastAPI + Clean Architecture:
+
+Routers → só controlam o fluxo HTTP
+
+Schemas → só definem dados (validação)
+
+Dependencies → injeção de services/repositories
+
+Clients → serviços externos
+
+Mappers → conversão de dados
+
+Database/Models → estrutura física do banco
+
+Database/Repositories → persistência e consultas complexas
