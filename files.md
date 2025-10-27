@@ -1,0 +1,39 @@
+app/
+│
+├── core/                         # Configurações centrais, middlewares, logs, segurança
+│   ├── config.py                  # Configurações do app (env, DB, etc.)
+│   ├── exceptions.py              # Exceções e handlers globais
+│   ├── security.py                # Autenticação, JWT, etc.
+│   └── dependencies.py            # Dependências globais (injeção)
+│
+├── domain/                        # Camada de domínio (entidades e regras de negócio puras)
+│   ├── entities/                  # Entidades de domínio (modelos de negócio)
+│   │   └── user.py
+│   ├── repositories/              # Interfaces (ports) que definem contratos
+│   │   └── user_repository.py
+│   ├── services/                  # Regras e lógica de negócio (casos de uso)
+│   │   └── create_user_service.py
+│   └── value_objects/             # Objetos imutáveis (CPF, Email, etc.)
+│
+├── infrastructure/                # Adapters (implementações técnicas)
+│   ├── database/                  # Repositórios concretos e ORM
+│   │   ├── models/                # Modelos ORM (SQLAlchemy)
+│   │   │   └── user_model.py
+│   │   └── user_repository_impl.py # Implementação de repository interface
+│   ├── api/                       # Camada de entrada (FastAPI)
+│   │   ├── routers/               # Rotas (controllers/adapters de entrada)
+│   │   │   └── user_router.py
+│   │   ├── schemas/               # Pydantic (DTOs / requests / responses)
+│   │   │   └── user_schema.py
+│   │   └── dependencies.py        # Dependências específicas da camada API
+│   ├── clients/                   # Integrações externas (APIs, filas, etc.)
+│   │   └── external_user_client.py
+│   └── mappers/                   # Conversores entre entidades, schemas, DTOs, etc.
+│       └── user_mapper.py
+│
+├── tests/                         # Testes organizados por camada
+│   ├── unit/
+│   ├── integration/
+│   └── e2e/
+│
+└── main.py                        # Ponto de entrada do FastAPI (inicialização da aplicação)
