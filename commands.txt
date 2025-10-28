@@ -1,0 +1,62 @@
+
+# FASTAPI - PRINCIPAIS COMANDOS
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+
+# ALEMBIC - PRINCIPAIS COMANDOS
+
+1️⃣ Inicializar Alembic
+-----------------------------------
+alembic init migrations
+- Cria a pasta 'migrations/' e o arquivo 'alembic.ini'
+- Necessário apenas uma vez no projeto
+
+2️⃣ Criar uma nova migration
+-----------------------------------
+alembic revision -m "mensagem da migration"
+- Cria um arquivo de migration vazio
+- Útil para escrever migrations manuais
+
+2.1️⃣ Criar migration automática (autogenerate)
+-----------------------------------
+alembic revision --autogenerate -m "create tables"
+- Compara seus modelos ORM com o banco
+- Gera automaticamente SQL de criação/alteração de tabelas
+
+3️⃣ Aplicar migrations
+-----------------------------------
+alembic upgrade head
+- Aplica todas as migrations pendentes
+- 'head' → última versão
+
+3.1️⃣ Aplicar até uma versão específica
+-----------------------------------
+alembic upgrade <revision_id>
+- Aplica apenas até a migration especificada
+
+4️⃣ Reverter migrations
+-----------------------------------
+alembic downgrade -1
+- Reverte a última migration aplicada
+- 'downgrade <revision_id>' → reverte até uma versão específica
+
+5️⃣ Ver histórico de migrations
+-----------------------------------
+alembic history --verbose
+- Lista todas as migrations criadas
+- Útil para acompanhar o histórico
+
+6️⃣ Ver status das migrations
+-----------------------------------
+alembic current
+- Mostra qual versão está atualmente aplicada no banco
+
+7️⃣ Fluxo normal de uso
+-----------------------------------
+1. Criar/alterar modelos ORM (em app/infrastructure/database/models/)
+2. Gerar migration automática:
+   alembic revision --autogenerate -m "mensagem"
+3. Aplicar migration no banco:
+   alembic upgrade head
+4. Se necessário, reverter:
+   alembic downgrade -1
