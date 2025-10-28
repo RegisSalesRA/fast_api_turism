@@ -33,8 +33,8 @@ def create_point(payload: CreatePointTurismRequest, service: PointTurismService 
         name=payload.name,
         image=payload.image,
         description=payload.description,
-        city_id=payload.city_id,
-        category_id=payload.category_id,
+        city_id=1,
+        category_id=2,
         review=0.0
     )
     created = service.create_point(entity)

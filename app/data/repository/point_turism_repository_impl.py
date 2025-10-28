@@ -1,4 +1,5 @@
 from typing import List, Optional
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.data.models.point_turism_model import PointTurismModel
 from app.domain.entities.point_turism_entity import PointTurismEntity
@@ -9,16 +10,21 @@ class PointTurismRepositoryImpl(PointTurismRepository):
     def __init__(self, db: Session):
         self.db = db
 
-    def get_all(self) -> List[PointTurismEntity]:
-        points = self.db.query(PointTurismModel).all()
+    def list_all(self, limit: Optional[int] = None, offset: Optional[int] = None) -> List[PointTurismEntity]:
+        query = self.db.query(PointTurismModel)
+        if offset:
+            query = query.offset(offset)
+        if limit:
+            query = query.limit(limit)
+        points = query.all()
         return [
             PointTurismEntity(
                 id=p.id,
                 name=p.name,
                 image=p.image,
                 description=p.description,
-                city_id=p.city_id,
-                category_id=p.category_id,
+                city_id=1,
+                category_id=1,
                 review=p.review,
             )
             for p in points
@@ -43,8 +49,6 @@ class PointTurismRepositoryImpl(PointTurismRepository):
             name=point.name,
             image=point.image,
             description=point.description,
-            city_id=point.city_id,
-            category_id=point.category_id,
             review=point.review,
         )
         self.db.add(model)
@@ -55,8 +59,8 @@ class PointTurismRepositoryImpl(PointTurismRepository):
             name=model.name,
             image=model.image,
             description=model.description,
-            city_id=model.city_id,
-            category_id=model.category_id,
+            city_id=1,
+            category_id=1,
             review=model.review,
         )
 
@@ -87,3 +91,75 @@ class PointTurismRepositoryImpl(PointTurismRepository):
         self.db.delete(model)
         self.db.commit()
         return True
+
+    def search_by_name(self, name: str) -> List[PointTurismEntity]:
+        points = self.db.query(PointTurismModel)\
+                        .filter(PointTurismModel.name.ilike(f"%{name}%"))\
+                        .all()
+        return [
+            PointTurismEntity(
+                id=p.id,
+                name=p.name,
+                image=p.image,
+                description=p.description,
+                city_id=p.city_id,
+                category_id=p.category_id,
+                review=p.review,
+            )
+            for p in points
+        ]
+ 
+    def filter(
+        self,
+        city_id: Optional[int] = None,
+        category_id: Optional[int] = None,
+        min_review: Optional[float] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None
+    ) -> List[PointTurismEntity]:
+        query = self.db.query(PointTurismModel)
+
+        if city_id is not None:
+            query = query.filter(PointTurismModel.city_id == city_id)
+        if category_id is not None:
+            query = query.filter(PointTurismModel.category_id == category_id)
+        if min_review is not None:
+            query = query.filter(PointTurismModel.review >= min_review)
+        if offset is not None:
+            query = query.offset(offset)
+        if limit is not None:
+            query = query.limit(limit)
+
+        points = query.all()
+        return [
+            PointTurismEntity(
+                id=p.id,
+                name=p.name,
+                image=p.image,
+                description=p.description,
+                city_id=p.city_id,
+                category_id=p.category_id,
+                review=p.review,
+            )
+            for p in points
+        ]
+ 
+    def summary_by_city(self):
+        """
+        Retorna uma lista de dicionários com resumo por cidade:
+        [{ "city_id": 1, "count": 10, "average_review": 4.5 }, ...]
+        """
+        results = self.db.query(
+            PointTurismModel.city_id,
+            func.count(PointTurismModel.id).label("count"),
+            func.avg(PointTurismModel.review).label("average_review")
+        ).group_by(PointTurismModel.city_id).all()
+
+        return [
+            {
+                "city_id": r.city_id,
+                "count": r.count,
+                "average_review": float(r.average_review) if r.average_review else 0.0
+            }
+            for r in results
+        ]
