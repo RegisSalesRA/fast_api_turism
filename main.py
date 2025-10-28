@@ -18,7 +18,3 @@ app.add_middleware(
 )
  
 app.include_router(point_turism_router.router)
- 
-@app.get("/")
-async def root():
-    return {"message": "API Pontos Turísticos funcionando!"}
