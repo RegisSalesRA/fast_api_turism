@@ -29,11 +29,7 @@ class PointTurismRepository(ABC):
         pass
 
     @abstractmethod
-    def filter(self, city_id: Optional[int] = None, category_id: Optional[int] = None,
+    def filter(self,  category_id: Optional[int] = None,
                min_review: Optional[float] = None, limit: Optional[int] = None, offset: Optional[int] = None) -> List[PointTurismEntity]:
         pass
-
-    @abstractmethod
-    def summary_by_city(self):
-        """Retorna agregações por cidade — forma livre (lista de dicts)"""
-        pass
+ 

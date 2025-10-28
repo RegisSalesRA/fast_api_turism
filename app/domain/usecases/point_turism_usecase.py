@@ -3,7 +3,7 @@ from app.core.exceptions.domain_exceptions import NotFoundError
 from app.domain.entities.point_turism_entity import PointTurismEntity
 from app.domain.repositories.point_turism_repository import PointTurismRepository
  
-class PointTurismService: 
+class PointTurismUseCase: 
 
     def __init__(self, repository: PointTurismRepository):
         self.repo = repository
@@ -31,7 +31,7 @@ class PointTurismService:
         existing.name = entity.name or existing.name
         existing.image = entity.image or existing.image
         existing.description = entity.description if entity.description is not None else existing.description
-        existing.city_id = entity.city_id or existing.city_id
+        
         existing.category_id = entity.category_id or existing.category_id
         existing.review = entity.review if entity.review is not None else existing.review
 
@@ -51,17 +51,11 @@ class PointTurismService:
 
     def filter_points(
         self,
-        city_id: Optional[int] = None,
+       
         category_id: Optional[int] = None,
         min_review: Optional[float] = None,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
     ) -> List[PointTurismEntity]:
-        return self.repo.filter(city_id=city_id, category_id=category_id, min_review=min_review, limit=limit, offset=offset)
-
-    def summary_by_city(self):
-        """
-        Ex: retorna lista de dicts: [{ 'city_id': 1, 'city_name': 'X', 'total_points': 5, 'average_review': 4.2 }, ...]
-        Implementação delegada ao repositório (consulta agregada).
-        """
-        return self.repo.summary_by_city()
+        return self.repo.filter(  category_id=category_id, min_review=min_review, limit=limit, offset=offset)
+ 

@@ -22,8 +22,7 @@ class PointTurismRepositoryImpl(PointTurismRepository):
                 id=p.id,
                 name=p.name,
                 image=p.image,
-                description=p.description,
-                city_id=1,
+                description=p.description, 
                 category_id=1,
                 review=p.review,
             )
@@ -38,8 +37,7 @@ class PointTurismRepositoryImpl(PointTurismRepository):
             id=p.id,
             name=p.name,
             image=p.image,
-            description=p.description,
-            city_id=p.city_id,
+            description=p.description, 
             category_id=p.category_id,
             review=p.review,
         )
@@ -58,8 +56,7 @@ class PointTurismRepositoryImpl(PointTurismRepository):
             id=model.id,
             name=model.name,
             image=model.image,
-            description=model.description,
-            city_id=1,
+            description=model.description, 
             category_id=1,
             review=model.review,
         )
@@ -78,8 +75,7 @@ class PointTurismRepositoryImpl(PointTurismRepository):
             id=model.id,
             name=model.name,
             image=model.image,
-            description=model.description,
-            city_id=model.city_id,
+            description=model.description, 
             category_id=model.category_id,
             review=model.review,
         )
@@ -101,8 +97,7 @@ class PointTurismRepositoryImpl(PointTurismRepository):
                 id=p.id,
                 name=p.name,
                 image=p.image,
-                description=p.description,
-                city_id=p.city_id,
+                description=p.description, 
                 category_id=p.category_id,
                 review=p.review,
             )
@@ -110,17 +105,14 @@ class PointTurismRepositoryImpl(PointTurismRepository):
         ]
  
     def filter(
-        self,
-        city_id: Optional[int] = None,
+        self, 
         category_id: Optional[int] = None,
         min_review: Optional[float] = None,
         limit: Optional[int] = None,
         offset: Optional[int] = None
     ) -> List[PointTurismEntity]:
         query = self.db.query(PointTurismModel)
-
-        if city_id is not None:
-            query = query.filter(PointTurismModel.city_id == city_id)
+ 
         if category_id is not None:
             query = query.filter(PointTurismModel.category_id == category_id)
         if min_review is not None:
@@ -136,30 +128,10 @@ class PointTurismRepositoryImpl(PointTurismRepository):
                 id=p.id,
                 name=p.name,
                 image=p.image,
-                description=p.description,
-                city_id=p.city_id,
+                description=p.description, 
                 category_id=p.category_id,
                 review=p.review,
             )
             for p in points
         ]
  
-    def summary_by_city(self):
-        """
-        Retorna uma lista de dicionários com resumo por cidade:
-        [{ "city_id": 1, "count": 10, "average_review": 4.5 }, ...]
-        """
-        results = self.db.query(
-            PointTurismModel.city_id,
-            func.count(PointTurismModel.id).label("count"),
-            func.avg(PointTurismModel.review).label("average_review")
-        ).group_by(PointTurismModel.city_id).all()
-
-        return [
-            {
-                "city_id": r.city_id,
-                "count": r.count,
-                "average_review": float(r.average_review) if r.average_review else 0.0
-            }
-            for r in results
-        ]

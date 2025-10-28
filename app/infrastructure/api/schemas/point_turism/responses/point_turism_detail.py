@@ -4,10 +4,9 @@ class PointTurismDetailResponse(BaseModel):
     id: int
     name: str
     image: str
-    description: str | None
-    city_id: int
+    description: str | None 
     category_id: int
     review: float
 
     class Config:
-        orm_mode = True  # permite converter diretamente de modelos SQLAlchemy
+        orm_mode = True   

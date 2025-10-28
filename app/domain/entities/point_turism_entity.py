@@ -6,7 +6,6 @@ class PointTurismEntity:
     id: Optional[int]
     name: str
     image: str
-    description: Optional[str]
-    city_id: int
+    description: Optional[str] 
     category_id: int
     review: float = 0.0

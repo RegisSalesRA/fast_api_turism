@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class FilterPointTurismRequest(BaseModel):
+class FilterCategoryRequest(BaseModel):
     name: Optional[str] = None 
