@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import get_db
 from app.core.exceptions.domain_exceptions import NotFoundError
 from app.data.repository.point_turism_repository_impl import PointTurismRepositoryImpl
-from app.domain.entities.point_turism_entity import PointTurismEntity
-from app.domain.services.point_turism_service import PointTurismService
+from app.domain.entities.point_turism_entity import PointTurismEntity 
+from app.domain.usecases.point_turism_service import PointTurismService
 from app.infrastructure.api.schemas.point_turism.requests.create_point_turism import CreatePointTurismRequest
 from app.infrastructure.api.schemas.point_turism.responses.point_turism_detail import PointTurismDetailResponse
 
