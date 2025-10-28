@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware 
 from app.infrastructure.api.routes import point_turism_router
+from app.infrastructure.api.routes import category_router
 
 app = FastAPI(
     title="API Pontos Turísticos",
@@ -18,3 +19,4 @@ app.add_middleware(
 )
  
 app.include_router(point_turism_router.router)
+app.include_router(category_router.router)
