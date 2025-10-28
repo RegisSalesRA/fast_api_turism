@@ -5,7 +5,7 @@ class PointTurismDetailResponse(BaseModel):
     name: str
     image: str
     description: str | None 
-    category_id: int
+    category_id: int | None 
     review: float
 
     class Config:

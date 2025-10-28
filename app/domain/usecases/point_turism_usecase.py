@@ -24,20 +24,14 @@ class PointTurismUseCase:
         return p
 
     def update_point(self, entity: PointTurismEntity) -> PointTurismEntity:
+        print("fudeu?")
         existing = self.repo.get_by_id(entity.id)
         if existing is None:
             raise NotFoundError(f"Point with id {entity.id} not found")
 
-        existing.name = entity.name or existing.name
-        existing.image = entity.image or existing.image
-        existing.description = entity.description if entity.description is not None else existing.description
-        
-        existing.category_id = entity.category_id or existing.category_id
-        existing.review = entity.review if entity.review is not None else existing.review
-
-        updated = self.repo.update(existing)
+        updated = self.repo.update(entity)
         return updated
-
+ 
     def delete_point(self, id: int) -> None:
         existing = self.repo.get_by_id(id)
         if existing is None:

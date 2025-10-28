@@ -61,24 +61,32 @@ class PointTurismRepositoryImpl(PointTurismRepository):
             review=model.review,
         )
 
-    def update(self, point_id: int, data: dict) -> Optional[PointTurismEntity]:
-        model = self.db.query(PointTurismModel).filter(PointTurismModel.id == point_id).first()
+    def update(self, entity: PointTurismEntity) -> Optional[PointTurismEntity]:
+        
+        model = (
+        self.db.query(PointTurismModel)
+        .filter(PointTurismModel.id == entity.id)
+        .first()
+    ) 
         if not model:
-            return None
+            return None 
+        model.name = entity.name or model.name
+        model.image = entity.image or model.image
+        model.description = entity.description if entity.description is not None else model.description
+        model.category_id = entity.category_id or model.category_id
+        model.review = entity.review if entity.review is not None else model.review
 
-        for key, value in data.items():
-            setattr(model, key, value)
         self.db.commit()
         self.db.refresh(model)
 
         return PointTurismEntity(
-            id=model.id,
-            name=model.name,
-            image=model.image,
-            description=model.description, 
-            category_id=model.category_id,
-            review=model.review,
-        )
+        id=model.id,
+        name=model.name,
+        image=model.image,
+        description=model.description,
+        category_id=model.category_id,
+        review=model.review,
+    )
 
     def delete(self, point_id: int) -> bool:
         model = self.db.query(PointTurismModel).filter(PointTurismModel.id == point_id).first()

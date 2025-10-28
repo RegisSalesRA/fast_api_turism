@@ -49,8 +49,10 @@ def update_point_turism(point_id: int, payload: UpdatePointTurismRequest, usecas
             category_id=payload.category_id,
             review=payload.review
         )
+
         return usecase.update_point(entity)
     except NotFoundError as e:
+        print('e ai?')
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     
 @router.delete("/{point_id}", status_code=status.HTTP_204_NO_CONTENT)
