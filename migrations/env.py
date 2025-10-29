@@ -8,6 +8,7 @@ from alembic import context
 from app.core.config import DATABASE_URL
 from app.data.models.point_turism_model import Base
 from app.data.models.category_model import Base
+from app.data.models.city_model import Base
 
 config = context.config
 config.set_main_option('sqlalchemy.url',DATABASE_URL)
