@@ -29,7 +29,7 @@ class PointTurismRepository(ABC):
         pass
 
     @abstractmethod
-    def filter(self,  category_id: Optional[int] = None,
+    def filter(self, category_id: Optional[int] = None, city_id: Optional[int] = None,
                min_review: Optional[float] = None, limit: Optional[int] = None, offset: Optional[int] = None) -> List[PointTurismEntity]:
         pass
  

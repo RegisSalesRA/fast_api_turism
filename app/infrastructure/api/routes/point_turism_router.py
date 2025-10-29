@@ -30,9 +30,9 @@ def create_point_turism(payload: CreatePointTurismRequest, usecase: PointTurismU
         name=payload.name,
         image=payload.image,
         description=payload.description,
-     
-        category_id=2,
-        review=0.0
+        category_id=payload.category_id,
+        city_id=payload.city_id,
+        review=payload.review
     )
     created = usecase.create_point(entity)
     return created
@@ -45,14 +45,14 @@ def update_point_turism(point_id: int, payload: UpdatePointTurismRequest, usecas
             id=point_id,
             name=payload.name,
             image=payload.image,
-            description=payload.description, 
+            description=payload.description,
             category_id=payload.category_id,
+            city_id=payload.city_id,
             review=payload.review
         )
 
         return usecase.update_point(entity)
     except NotFoundError as e:
-        print('e ai?')
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     
 @router.delete("/{point_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -69,15 +69,17 @@ def search_points_turism(name: str, usecase: PointTurismUseCase = Depends(get_po
     return usecase.search_by_name(name)
 
 @router.get("/filter/", response_model=List[PointTurismDetailResponse])
-def filter_points_turism( 
+def filter_points_turism(
     category_id: Optional[int] = None,
+    city_id: Optional[int] = None,
     min_review: Optional[float] = None,
     limit: Optional[int] = None,
     offset: Optional[int] = None,
     usecase: PointTurismUseCase = Depends(get_points_turism_usecase)
 ):
-    return usecase.filter_points( 
+    return usecase.filter_points(
         category_id=category_id,
+        city_id=city_id,
         min_review=min_review,
         limit=limit,
         offset=offset

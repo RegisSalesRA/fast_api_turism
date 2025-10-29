@@ -16,7 +16,9 @@ def get_category_usecase(db=Depends(get_db)):
 
 def get_points_turism_usecase(db=Depends(get_db)):
     repo = PointTurismRepositoryImpl(db)
-    usecase = PointTurismUseCase(repo)
+    city_repo = CityRepositoryImpl(db)
+    category_repo = CategoryRepositoryImpl(db)
+    usecase = PointTurismUseCase(repo, city_repo, category_repo)
     return usecase
 
 

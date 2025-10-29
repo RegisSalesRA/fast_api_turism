@@ -22,8 +22,9 @@ class PointTurismRepositoryImpl(PointTurismRepository):
                 id=p.id,
                 name=p.name,
                 image=p.image,
-                description=p.description, 
-                category_id=1,
+                description=p.description,
+                category_id=p.category_id,
+                city_id=p.city_id,
                 review=p.review,
             )
             for p in points
@@ -37,8 +38,9 @@ class PointTurismRepositoryImpl(PointTurismRepository):
             id=p.id,
             name=p.name,
             image=p.image,
-            description=p.description, 
+            description=p.description,
             category_id=p.category_id,
+            city_id=p.city_id,
             review=p.review,
         )
 
@@ -47,6 +49,8 @@ class PointTurismRepositoryImpl(PointTurismRepository):
             name=point.name,
             image=point.image,
             description=point.description,
+            category_id=point.category_id,
+            city_id=point.city_id,
             review=point.review,
         )
         self.db.add(model)
@@ -56,24 +60,26 @@ class PointTurismRepositoryImpl(PointTurismRepository):
             id=model.id,
             name=model.name,
             image=model.image,
-            description=model.description, 
-            category_id=1,
+            description=model.description,
+            category_id=model.category_id,
+            city_id=model.city_id,
             review=model.review,
         )
 
     def update(self, entity: PointTurismEntity) -> Optional[PointTurismEntity]:
-        
+
         model = (
         self.db.query(PointTurismModel)
         .filter(PointTurismModel.id == entity.id)
         .first()
-    ) 
+    )
         if not model:
-            return None 
+            return None
         model.name = entity.name or model.name
         model.image = entity.image or model.image
         model.description = entity.description if entity.description is not None else model.description
-        model.category_id = entity.category_id or model.category_id
+        model.category_id = entity.category_id if entity.category_id is not None else model.category_id
+        model.city_id = entity.city_id if entity.city_id is not None else model.city_id
         model.review = entity.review if entity.review is not None else model.review
 
         self.db.commit()
@@ -85,6 +91,7 @@ class PointTurismRepositoryImpl(PointTurismRepository):
         image=model.image,
         description=model.description,
         category_id=model.category_id,
+        city_id=model.city_id,
         review=model.review,
     )
 
@@ -105,24 +112,28 @@ class PointTurismRepositoryImpl(PointTurismRepository):
                 id=p.id,
                 name=p.name,
                 image=p.image,
-                description=p.description, 
+                description=p.description,
                 category_id=p.category_id,
+                city_id=p.city_id,
                 review=p.review,
             )
             for p in points
         ]
  
     def filter(
-        self, 
+        self,
         category_id: Optional[int] = None,
+        city_id: Optional[int] = None,
         min_review: Optional[float] = None,
         limit: Optional[int] = None,
         offset: Optional[int] = None
     ) -> List[PointTurismEntity]:
         query = self.db.query(PointTurismModel)
- 
+
         if category_id is not None:
             query = query.filter(PointTurismModel.category_id == category_id)
+        if city_id is not None:
+            query = query.filter(PointTurismModel.city_id == city_id)
         if min_review is not None:
             query = query.filter(PointTurismModel.review >= min_review)
         if offset is not None:
@@ -136,8 +147,9 @@ class PointTurismRepositoryImpl(PointTurismRepository):
                 id=p.id,
                 name=p.name,
                 image=p.image,
-                description=p.description, 
+                description=p.description,
                 category_id=p.category_id,
+                city_id=p.city_id,
                 review=p.review,
             )
             for p in points
