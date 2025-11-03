@@ -1,5 +1,6 @@
 from fastapi.params import Depends
 from app.core.dependencies import get_db
+from app.core.pagination.paginator import Paginator
 from app.data.repository.category_repository_impl import CategoryRepositoryImpl
 from app.data.repository.point_turism_repository_impl import PointTurismRepositoryImpl
 from app.data.repository.city_repository_impl import CityRepositoryImpl
@@ -8,9 +9,10 @@ from app.domain.usecases.point_turism_usecase import PointTurismUseCase
 from app.domain.usecases.city_usecase import CityUseCase
 
 
-def get_category_usecase(db=Depends(get_db)):
+async def get_category_usecase(db=Depends(get_db)):
     repo = CategoryRepositoryImpl(db)
-    usecase = CategoryUseCase(repo)
+    paginator = Paginator(db)
+    usecase = CategoryUseCase(repo, paginator)
     return usecase
 
 

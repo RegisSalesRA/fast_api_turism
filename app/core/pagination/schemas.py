@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 T = TypeVar('T')
 
 class PageParams(BaseModel):
-    page: int = Field(default=1, ge=1, description="Pàge number (start 1)")
+    page: int = Field(default=1, ge=1, description="Pàage number (start 1)")
     size: int = Field(default=10, ge=1, le=100, description="items for page (beetween 1 and 100)")
 
 class PageResponse(BaseModel, Generic[T]):

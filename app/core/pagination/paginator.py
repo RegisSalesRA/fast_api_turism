@@ -21,7 +21,7 @@ class Paginator(Generic[T]):
         total = await self.session.scalar(count_query) or 0
         offset = (page_params.page - 1) * page_params.size
         query = query.offset(offset).limit(page_params.size)
-        result = await self.session.execute(query)
+        result =  await self.session.execute(query)
         items = result.scalars().all()
         return PageResponse.create(
             items=items,

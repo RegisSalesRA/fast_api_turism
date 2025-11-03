@@ -1,83 +1,71 @@
 from typing import List, Optional
-from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.data.models.category_model import CategoryModel
 from app.domain.entities.category_entity import CategoryEntity
-from app.domain.repositories.category_repository import CategoryRepository 
+from app.domain.repositories.category_repository import CategoryRepository
 
 
 class CategoryRepositoryImpl(CategoryRepository):
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.db = db
 
-    def list_all(self, limit: Optional[int] = None, offset: Optional[int] = None) -> List[CategoryModel]:
-        query = self.db.query(CategoryModel)
-        if offset:
-            query = query.offset(offset)
-        if limit:
-            query = query.limit(limit)
-        points = query.all()
-        return [
-            CategoryModel(
-                id=p.id,
-                name=p.name, 
-            )
-            for p in points
-        ]
+    def base_query(self):
+        """Retorna a query base para reutilização"""
+        return select(CategoryModel)
 
-    def get_by_id(self, point_id: int) -> Optional[CategoryModel]:
-        p = self.db.query(CategoryModel).filter(CategoryModel.id == point_id).first()
-        if not p:
+    async def list_all(self, limit: int = 10, offset: int = 0) -> List[CategoryEntity]:
+        result = await self.db.execute(
+            select(CategoryModel).offset(offset).limit(limit)
+        )
+        models = result.scalars().all()
+        return [CategoryEntity(id=m.id, name=m.name) for m in models]
+
+    async def get_by_id(self, category_id: int) -> Optional[CategoryEntity]:
+        result = await self.db.execute(
+            select(CategoryModel).where(CategoryModel.id == category_id)
+        )
+        model = result.scalar_one_or_none()
+        if not model:
             return None
-        return CategoryModel(
-            id=p.id,
-            name=p.name, 
-        )
+        return CategoryEntity(id=model.id, name=model.name)
 
-    def create(self, point: CategoryModel) -> CategoryModel:
-        model = CategoryModel(
-            name=point.name, 
-        )
+    async def create(self, entity: CategoryEntity) -> CategoryEntity:
+        model = CategoryModel(name=entity.name)
         self.db.add(model)
-        self.db.commit()
-        self.db.refresh(model)
-        return CategoryModel(
-            id=model.id,
-            name=model.name, 
-        )
+        await self.db.commit()
+        await self.db.refresh(model)
+        return CategoryEntity(id=model.id, name=model.name)
 
-    def update(self, entity: CategoryEntity) -> Optional[CategoryEntity]:
-        model = self.db.query(CategoryModel).filter(CategoryModel.id == entity.id).first()
+    async def update(self, entity: CategoryEntity) -> Optional[CategoryEntity]:
+        result = await self.db.execute(
+            select(CategoryModel).where(CategoryModel.id == entity.id)
+        )
+        model = result.scalar_one_or_none()
         if not model:
             return None
 
         model.name = entity.name or model.name
-        self.db.commit()
-        self.db.refresh(model)
+        await self.db.commit()
+        await self.db.refresh(model)
 
-        return CategoryEntity(
-        id=model.id,
-        name=model.name,
-    )
+        return CategoryEntity(id=model.id, name=model.name)
 
-
-    def delete(self, point_id: int) -> bool:
-        model = self.db.query(CategoryModel).filter(CategoryModel.id == point_id).first()
+    async def delete(self, category_id: int) -> bool:
+        result = await self.db.execute(
+            select(CategoryModel).where(CategoryModel.id == category_id)
+        )
+        model = result.scalar_one_or_none()
         if not model:
             return False
-        self.db.delete(model)
-        self.db.commit()
+
+        await self.db.delete(model)
+        await self.db.commit()
         return True
 
-    def search_by_name(self, name: str) -> List[CategoryModel]:
-        points = self.db.query(CategoryModel)\
-                        .filter(CategoryModel.name.ilike(f"%{name}%"))\
-                        .all()
-        return [
-            CategoryModel(
-                id=p.id,
-                name=p.name, 
-            )
-            for p in points
-        ]
- 
+    async def search_by_name(self, name: str) -> List[CategoryEntity]:
+        result = await self.db.execute(
+            select(CategoryModel).where(CategoryModel.name.ilike(f"%{name}%"))
+        )
+        models = result.scalars().all()
+        return [CategoryEntity(id=m.id, name=m.name) for m in models]

@@ -13,5 +13,5 @@ for var_name, value in [("DB_USER", DB_USER), ("DB_PASSWORD", DB_PASSWORD),
     if not value:
         raise ValueError(f"Variável de ambiente {var_name} não está definida!")
  
-DATABASE_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
  

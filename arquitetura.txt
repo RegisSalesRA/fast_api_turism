@@ -6,20 +6,20 @@ app/
 │   ├── security.py                # Autenticação, JWT, etc.
 │   └── dependencies.py            # Dependências globais (injeção)
 │
-├── domain/                        # Camada de domínio (entidades e regras de negócio puras)
+├── domain/                        # Camada de domínio (entidades e regras puras)
 │   ├── entities/                  # Entidades de domínio (modelos de negócio)
 │   │   └── user.py
 │   ├── repositories/              # Interfaces (ports) que definem contratos
 │   │   └── user_repository.py
-│   ├── services/                  # Regras e lógica de negócio (casos de uso)
-│   │   └── create_user_service.py
+│   ├── usecases/                  # Casos de uso (regras de negócio específicas)
+│   │   └── create_user.py
 │   └── value_objects/             # Objetos imutáveis (CPF, Email, etc.)
 │
 ├── infrastructure/                # Adapters (implementações técnicas)
 │   ├── database/                  # Repositórios concretos e ORM
 │   │   ├── models/                # Modelos ORM (SQLAlchemy)
 │   │   │   └── user_model.py
-│   │   └── user_repository_impl.py # Implementação de repository interface
+│   │   └── user_repository_impl.py # Implementação concreta do repository
 │   ├── api/                       # Camada de entrada (FastAPI)
 │   │   ├── routers/               # Rotas (controllers/adapters de entrada)
 │   │   │   └── user_router.py
