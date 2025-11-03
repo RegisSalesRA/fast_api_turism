@@ -1,0 +1,169 @@
+===========================================
+Projeto: Sistema de Pontos Turísticos
+===========================================
+
+Objetivo:
+- Tornar o sistema mais complexo e completo
+- Incluir múltiplos tipos de usuários com permissões diferentes
+- Preparar para integração com Flutter, incluindo testes unitários, widget e integração
+
+---------------------------------------------------
+1. Estrutura de Usuários e Permissões
+---------------------------------------------------
+
+Tipos de Usuários:
+
+1) Turista (tourist)
+   - Funcionalidades:
+     - Listar e explorar pontos turísticos
+     - Favoritar/desfavoritar pontos turísticos
+     - Avaliar pontos turísticos (nota de 1 a 5)
+     - Comentar pontos turísticos
+     - Criar roteiros personalizados ("meus roteiros")
+   - Permissões:
+     - Apenas acessar e interagir com conteúdo
+     - Não pode criar/editar pontos turísticos
+
+2) Gestor Local (creator)
+   - Funcionalidades:
+     - Criar pontos turísticos na cidade que administra
+     - Editar/excluir seus próprios pontos turísticos
+     - Acompanhar avaliações e comentários de seus pontos
+     - Gerenciar imagens e informações locais
+   - Permissões:
+     - Acesso restrito apenas aos pontos que ele criou
+     - Não pode gerenciar outros usuários
+
+3) Administrador (admin)
+   - Funcionalidades:
+     - Criar, editar e remover qualquer ponto turístico
+     - Remover usuários (turistas e gestores)
+     - Moderar comentários e avaliações
+     - Gerenciar categorias e cidades
+     - Aprovar pontos turísticos criados por gestores
+     - Consultar dashboards globais (visitas, avaliações, top cidades)
+   - Permissões:
+     - Acesso total ao sistema (controle absoluto)
+
+---------------------------------------------------
+2. Novas Tabelas / Módulos
+---------------------------------------------------
+
+1) User
+   - Campos:
+     - id (UUID)
+     - name (String)
+     - email (String)
+     - password_hash (String)
+     - role (Enum: tourist, creator, admin)
+     - created_at (Datetime)
+
+2) PointTourism
+   - Campos:
+     - id (UUID)
+     - name (String)
+     - description (Text)
+     - city_id (FK → City)
+     - category_id (FK → Category)
+     - created_by (FK → User)
+     - approved (Boolean)
+     - created_at (Datetime)
+
+3) Favorite
+   - Campos:
+     - id (UUID)
+     - user_id (FK → User)
+     - point_id (FK → PointTourism)
+     - created_at (Datetime)
+
+4) Review
+   - Campos:
+     - id (UUID)
+     - user_id (FK → User)
+     - point_id (FK → PointTourism)
+     - rating (Integer, 1-5)
+     - comment (Text)
+     - created_at (Datetime)
+
+5) Route
+   - Campos:
+     - id (UUID)
+     - user_id (FK → User)
+     - name (String)
+     - description (Text)
+     - created_at (Datetime)
+
+6) RoutePoint
+   - Campos:
+     - id (UUID)
+     - route_id (FK → Route)
+     - point_id (FK → PointTourism)
+     - order (Integer) # ordem dos pontos no roteiro
+
+7) VisitStats (opcional, para dashboard)
+   - Campos:
+     - id (UUID)
+     - point_id (FK → PointTourism)
+     - user_id (FK → User, opcional)
+     - visited_at (Datetime)
+
+---------------------------------------------------
+3. Funcionalidades / Endpoints por Tipo de Usuário
+---------------------------------------------------
+
+Turista:
+- GET /points → listar pontos turísticos
+- GET /points/{id} → detalhes do ponto
+- POST /favorites → favoritar ponto
+- DELETE /favorites/{id} → remover favorito
+- POST /reviews → criar avaliação/comentário
+- GET /routes → listar roteiros pessoais
+- POST /routes → criar roteiro
+- PUT /routes/{id} → editar roteiro
+- DELETE /routes/{id} → excluir roteiro
+
+Gestor Local:
+- POST /points → criar ponto turístico
+- PUT /points/{id} → editar ponto próprio
+- DELETE /points/{id} → remover ponto próprio
+- GET /points/mine → listar pontos que criou
+- GET /reviews/mine → avaliações dos pontos que criou
+
+Administrador:
+- GET /users → listar todos usuários
+- DELETE /users/{id} → remover usuário
+- GET /points → listar todos pontos (com filtros)
+- PUT /points/{id}/approve → aprovar ponto
+- DELETE /points/{id} → remover qualquer ponto
+- GET /reviews → listar todas avaliações
+- DELETE /reviews/{id} → remover avaliação
+- CRUD categorias e cidades
+- Dashboards (estatísticas globais)
+
+---------------------------------------------------
+4. Novos Módulos / Funcionalidades Adicionais
+---------------------------------------------------
+
+- Autenticação JWT (login e registro)
+- Middleware de permissão por role
+- Upload de imagens para pontos turísticos
+- Dashboard de estatísticas (admin)
+- Filtros e buscas avançadas por cidade, categoria, proximidade
+- Exportação de roteiros em PDF ou compartilhamento
+- Geolocalização e mapas (opcional)
+- Testes Flutter:
+  - Unit tests: modelos e funções de negócio
+  - Widget tests: telas de detalhes, favoritos e avaliações
+  - Integration tests: fluxo completo de login → favoritar → criar roteiro
+
+---------------------------------------------------
+5. Enum de Papéis no Backend
+---------------------------------------------------
+
+```python
+from enum import Enum
+
+class UserRole(str, Enum):
+    TOURIST = "tourist"
+    CREATOR = "creator"
+    ADMIN = "admin"
