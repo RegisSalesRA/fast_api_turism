@@ -24,8 +24,9 @@ def get_points_turism_usecase(db=Depends(get_db)):
     return usecase
 
 
-def get_city_usecase(db=Depends(get_db)):
+async def get_city_usecase(db=Depends(get_db)):
     repo = CityRepositoryImpl(db)
-    usecase = CityUseCase(repo)
+    pagintator = Paginator(db)
+    usecase = CityUseCase(repo, paginator=pagintator)
     return usecase
 

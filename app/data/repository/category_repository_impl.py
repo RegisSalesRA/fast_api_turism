@@ -10,8 +10,7 @@ class CategoryRepositoryImpl(CategoryRepository):
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    def base_query(self):
-        """Retorna a query base para reutilização"""
+    def base_query(self): 
         return select(CategoryModel)
 
     async def list_all(self, limit: int = 10, offset: int = 0) -> List[CategoryEntity]:
