@@ -1,17 +1,13 @@
-class ReviewEntity {
-  final String id;
-  final String userId;
-  final int pointTourismId;
-  final double rating; // 1.0 a 5.0
-  final String? comment;
-  final DateTime createdAt;
+from dataclasses import dataclass
+from typing import Optional
+from datetime import datetime
 
-  const ReviewEntity({
-    required this.id,
-    required this.userId,
-    required this.pointTourismId,
-    required this.rating,
-    this.comment,
-    required this.createdAt,
-  });
-}
+
+@dataclass
+class ReviewEntity:
+    id: Optional[int]
+    user_id: str
+    point_turism_id: int
+    rating: float  # 1.0 a 5.0
+    comment: Optional[str] = None
+    created_at: datetime = datetime.utcnow()
