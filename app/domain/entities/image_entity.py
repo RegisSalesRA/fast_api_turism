@@ -1,11 +1,15 @@
-class ImageEntity {
-  final String id;
-  final String url;
-  final ImageType type;
+from dataclasses import dataclass
+from typing import Optional
+from enum import Enum
 
-  const ImageEntity({
-    required this.id,
-    required this.url,
-    this.type = ImageType.gallery,
-  });
-}
+
+class ImageType(Enum):
+    COVER = "cover"
+    GALLERY = "gallery"
+
+
+@dataclass
+class ImageEntity:
+    id: Optional[int]
+    url: str
+    type: ImageType = ImageType.GALLERY
