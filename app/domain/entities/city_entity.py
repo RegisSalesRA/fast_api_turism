@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
+
 @dataclass
 class CityEntity:
     id: Optional[int]
@@ -8,4 +9,4 @@ class CityEntity:
     state: str
     country: str = "Brasil"
     description: Optional[str] = None
-
+    review: float = 0.0
