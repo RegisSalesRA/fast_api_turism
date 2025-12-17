@@ -1,11 +1,9 @@
-class FavoriteEntity {
-  final String userId;
-  final int pointTourismId;
-  final DateTime savedAt;
+from dataclasses import dataclass
+from datetime import datetime
 
-  const FavoriteEntity({
-    required this.userId,
-    required this.pointTourismId,
-    required this.savedAt,
-  });
-}
+
+@dataclass
+class FavoriteEntity:
+    user_id: str
+    point_turism_id: int
+    created_at: datetime = datetime.utcnow()
