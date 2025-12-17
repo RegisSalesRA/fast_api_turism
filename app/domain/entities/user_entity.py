@@ -1,20 +1,17 @@
-class UserEntity {
-  final String id;
-  final String name;
-  final String email;
-  final UserRole role;
-  final DateTime createdAt;
+from dataclasses import dataclass
+from enum import Enum
+from datetime import datetime
 
-  const UserEntity({
-    required this.id,
-    required this.name,
-    required this.email,
-    this.role = UserRole.user,
-    required this.createdAt,
-  });
-}
 
-enum UserRole {
-  user,
-  admin,
-}
+class UserRole(Enum):
+    USER = "user"
+    ADMIN = "admin"
+
+
+@dataclass
+class UserEntity:
+    id: str
+    name: str
+    email: str
+    role: UserRole = UserRole.USER
+    created_at: datetime = datetime.utcnow()
