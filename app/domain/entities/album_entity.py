@@ -1,11 +1,9 @@
-class AlbumEntity {
-  final String id;
-  final String title;
-  final List<ImageEntity> images;
+from dataclasses import dataclass
+from typing import List
 
-  const AlbumEntity({
-    required this.id,
-    required this.title,
-    required this.images,
-  });
-}
+
+@dataclass
+class AlbumEntity:
+    id: Optional[int]
+    title: str
+    images: List[ImageEntity]
