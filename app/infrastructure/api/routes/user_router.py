@@ -9,6 +9,7 @@ from app.infrastructure.api.schemas.user.request.create_user import CreateUserRe
 from app.infrastructure.api.schemas.user.request.update_user import UpdateUserRequest
 from app.infrastructure.api.schemas.user.response.user_detail import UserDetailResponse
 
+
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
