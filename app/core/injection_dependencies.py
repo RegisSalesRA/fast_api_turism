@@ -17,6 +17,7 @@ from app.domain.usecases.review_usecase import ReviewUseCase
 from app.domain.usecases.image_usecase import ImageUseCase
 from app.domain.usecases.album_usecase import AlbumUseCase
 from app.domain.usecases.favorite_usecase import FavoriteUseCase
+from app.domain.usecases.auth_usecase import AuthUseCase
 
 
 async def get_category_usecase(db=Depends(get_db)):
@@ -72,5 +73,11 @@ async def get_album_usecase(db=Depends(get_db)):
 async def get_favorite_usecase(db=Depends(get_db)):
     repo = FavoriteRepositoryImpl(db)
     usecase = FavoriteUseCase(repo)
+    return usecase
+
+
+async def get_auth_usecase(db=Depends(get_db)):
+    repo = UserRepositoryImpl(db)
+    usecase = AuthUseCase(repo)
     return usecase
 

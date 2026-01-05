@@ -8,6 +8,7 @@ from app.infrastructure.api.routes import review_router
 from app.infrastructure.api.routes import image_router
 from app.infrastructure.api.routes import album_router
 from app.infrastructure.api.routes import favorite_router
+from app.infrastructure.api.routes import auth_router
 
 app = FastAPI(
     title="API Pontos Turísticos",
@@ -24,6 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router.router)
 app.include_router(user_router.router)
 app.include_router(point_turism_router.router)
 app.include_router(category_router.router)

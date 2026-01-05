@@ -13,12 +13,13 @@ class UserRepositoryImpl(UserRepository):
     def base_query(self):
         return select(UserModel)
 
-    async def create(self, entity: UserEntity) -> UserEntity:
+    async def create(self, entity: UserEntity, password_hash: str = None) -> UserEntity:
         model = UserModel(
             id=entity.id,
             name=entity.name,
             email=entity.email,
             role=entity.role,
+            password_hash=password_hash or "",
         )
         self.db.add(model)
         await self.db.commit()
@@ -82,6 +83,22 @@ class UserRepositoryImpl(UserRepository):
             created_at=u.created_at,
             last_login=u.last_login,
         )
+
+    async def get_user_by_email_with_password(self, email: str) -> Optional[tuple]:
+        """Retorna (UserEntity, password_hash) para validação de login"""
+        result = await self.db.execute(select(UserModel).filter(UserModel.email == email))
+        u = result.scalar_one_or_none()
+        if not u:
+            return None
+        user_entity = UserEntity(
+            id=u.id,
+            name=u.name,
+            email=u.email,
+            role=u.role,
+            created_at=u.created_at,
+            last_login=u.last_login,
+        )
+        return (user_entity, u.password_hash)
 
     async def update(self, entity: UserEntity) -> Optional[UserEntity]:
         result = await self.db.execute(select(UserModel).filter(UserModel.id == entity.id))

@@ -5,6 +5,8 @@ from app.core.injection_dependencies import get_user_usecase
 from app.core.pagination.schemas import PageParams, PageResponse
 from app.domain.entities.user_entity import UserEntity
 from app.domain.usecases.user_usecase import UserUseCase
+from app.utils.middleware import get_current_user
+from app.data.models.user_model import UserModel
 from app.infrastructure.api.schemas.user.request.create_user import CreateUserRequest
 from app.infrastructure.api.schemas.user.request.update_user import UpdateUserRequest
 from app.infrastructure.api.schemas.user.response.user_detail import UserDetailResponse
@@ -52,7 +54,16 @@ async def update_user(
     user_id: str,
     payload: UpdateUserRequest,
     usecase: UserUseCase = Depends(get_user_usecase),
+    current_user: UserModel = Depends(get_current_user),
 ):
+    """Atualizar usuário - Requer autenticação"""
+    # Verificar se o usuário está atualizando a si mesmo
+    if user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only update your own profile"
+        )
+    
     entity = UserEntity(
         id=user_id,
         name=payload.name,
@@ -65,8 +76,21 @@ async def update_user(
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_id: str, usecase: UserUseCase = Depends(get_user_usecase)):
+async def delete_user(
+    user_id: str,
+    usecase: UserUseCase = Depends(get_user_usecase),
+    current_user: UserModel = Depends(get_current_user),
+):
+    """Deletar usuário - Requer autenticação"""
+    # Verificar se o usuário está deletando a si mesmo
+    if user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only delete your own profile"
+        )
+    
     try:
         await usecase.delete_user(user_id)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
