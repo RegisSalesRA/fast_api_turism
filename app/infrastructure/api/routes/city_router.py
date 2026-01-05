@@ -5,6 +5,9 @@ from app.core.injection_dependencies import get_city_usecase
 from app.core.pagination.schemas import PageParams, PageResponse
 from app.domain.entities.city_entity import CityEntity
 from app.domain.usecases.city_usecase import CityUseCase
+from app.utils.middleware import get_current_user
+from app.utils.permissions import get_current_admin_user
+from app.data.models.user_model import UserModel
 from app.infrastructure.api.schemas.city.request.create_city import CreateCityRequest
 from app.infrastructure.api.schemas.city.request.update_city import UpdateCityRequest
 from app.infrastructure.api.schemas.city.response.get_city_detail import CityDetailResponse
@@ -18,6 +21,7 @@ async def list_cities(
     size: int = Query(10, ge=1, le=100),
     usecase: CityUseCase = Depends(get_city_usecase),
 ):
+    """Listar cidades - Público"""
     page_params = PageParams(page=page, size=size)
     return await usecase.list_cities(page_params)
 
@@ -27,11 +31,13 @@ async def search_cities_by_name(
     name: str,
     usecase: CityUseCase = Depends(get_city_usecase),
 ):
+    """Buscar cidades por nome - Público"""
     return await usecase.search_by_name(name)
 
 
 @router.get("/{city_id}", response_model=CityDetailResponse)
 async def get_city(city_id: int, usecase: CityUseCase = Depends(get_city_usecase)):
+    """Obter cidade específica - Público"""
     try:
         return await usecase.get_city(city_id)
     except NotFoundError as e:
@@ -42,7 +48,9 @@ async def get_city(city_id: int, usecase: CityUseCase = Depends(get_city_usecase
 async def create_city(
     payload: CreateCityRequest,
     usecase: CityUseCase = Depends(get_city_usecase),
+    current_admin: UserModel = Depends(get_current_admin_user),
 ):
+    """Criar cidade - ⛔ SOMENTE ADMIN"""
     entity = CityEntity(
         id=None,
         name=payload.name,
@@ -58,7 +66,9 @@ async def update_city(
     city_id: int,
     payload: UpdateCityRequest,
     usecase: CityUseCase = Depends(get_city_usecase),
+    current_admin: UserModel = Depends(get_current_admin_user),
 ):
+    """Atualizar cidade - ⛔ SOMENTE ADMIN"""
     entity = CityEntity(
         id=city_id,
         name=payload.name,
@@ -73,7 +83,12 @@ async def update_city(
 
 
 @router.delete("/{city_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_city(city_id: int, usecase: CityUseCase = Depends(get_city_usecase)):
+async def delete_city(
+    city_id: int,
+    usecase: CityUseCase = Depends(get_city_usecase),
+    current_admin: UserModel = Depends(get_current_admin_user),
+):
+    """Deletar cidade - ⛔ SOMENTE ADMIN"""
     try:
         await usecase.delete_city(city_id)
     except NotFoundError as e:

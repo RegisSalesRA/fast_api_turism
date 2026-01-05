@@ -9,7 +9,13 @@ class AuthUseCase:
     def __init__(self, user_repository: UserRepository):
         self.user_repo = user_repository
 
-    async def register(self, email: str, password: str, name: str) -> dict:
+    async def register(
+        self,
+        email: str,
+        password: str,
+        name: str,
+        role: UserRole = UserRole.USER
+    ) -> dict:
         """Registrar novo usuário"""
         # Verificar se usuário já existe
         existing_user = await self.user_repo.get_by_email(email)
@@ -25,12 +31,12 @@ class AuthUseCase:
         # Hash da senha
         hashed_password = get_password_hash(password)
         
-        # Criar entidade de usuário
+        # Criar entidade de usuário com role especificado
         user_entity = UserEntity(
             id=user_id,
             name=name,
             email=email,
-            role=UserRole.USER,
+            role=role,
         )
         
         # Salvar usuário com senha hasheada
