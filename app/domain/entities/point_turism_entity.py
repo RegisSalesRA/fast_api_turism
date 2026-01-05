@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional, List
 
+from app.domain.entities.image_entity import ImageEntity
+
 
 @dataclass
 class PointTurismEntity:

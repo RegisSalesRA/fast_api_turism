@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
+
+from app.domain.entities.image_entity import ImageEntity
 
 
 @dataclass

@@ -1,126 +1,82 @@
 from typing import List, Optional
-from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.data.models.point_turism_model import PointTurismModel
 from app.domain.entities.point_turism_entity import PointTurismEntity
 from app.domain.repositories.point_turism_repository import PointTurismRepository
 
 
 class PointTurismRepositoryImpl(PointTurismRepository):
-    def __init__(self, db: Session):
+
+    def __init__(self, db: AsyncSession):
         self.db = db
 
-    def list_all(self, limit: Optional[int] = None, offset: Optional[int] = None) -> List[PointTurismEntity]:
-        query = self.db.query(PointTurismModel)
-        if offset:
-            query = query.offset(offset)
-        if limit:
-            query = query.limit(limit)
-        points = query.all()
-        return [
-            PointTurismEntity(
-                id=p.id,
-                name=p.name,
-                image=p.image,
-                description=p.description,
-                category_id=p.category_id,
-                city_id=p.city_id,
-                review=p.review,
-            )
-            for p in points
-        ]
+    async def list_all(
+        self,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None
+    ) -> List[PointTurismEntity]:
 
-    def get_by_id(self, point_id: int) -> Optional[PointTurismEntity]:
-        p = self.db.query(PointTurismModel).filter(PointTurismModel.id == point_id).first()
-        if not p:
-            return None
-        return PointTurismEntity(
-            id=p.id,
-            name=p.name,
-            image=p.image,
-            description=p.description,
-            category_id=p.category_id,
-            city_id=p.city_id,
-            review=p.review,
-        )
+        stmt = select(PointTurismModel)
 
-    def create(self, point: PointTurismEntity) -> PointTurismEntity:
-        model = PointTurismModel(
-            name=point.name,
-            image=point.image,
-            description=point.description,
-            category_id=point.category_id,
-            city_id=point.city_id,
-            review=point.review,
-        )
+        if offset is not None:
+            stmt = stmt.offset(offset)
+        if limit is not None:
+            stmt = stmt.limit(limit)
+
+        result = await self.db.execute(stmt)
+        points = result.scalars().all()
+
+        return [self._to_entity(p) for p in points]
+
+    async def get_by_id(self, point_id: int) -> Optional[PointTurismEntity]:
+        stmt = select(PointTurismModel).where(PointTurismModel.id == point_id)
+        result = await self.db.execute(stmt)
+        model = result.scalars().first()
+
+        return self._to_entity(model) if model else None
+
+    async def create(self, entity: PointTurismEntity) -> PointTurismEntity:
+        model = PointTurismModel(**entity.__dict__)
+
         self.db.add(model)
-        self.db.commit()
-        self.db.refresh(model)
-        return PointTurismEntity(
-            id=model.id,
-            name=model.name,
-            image=model.image,
-            description=model.description,
-            category_id=model.category_id,
-            city_id=model.city_id,
-            review=model.review,
-        )
+        await self.db.commit()
+        await self.db.refresh(model)
 
-    def update(self, entity: PointTurismEntity) -> Optional[PointTurismEntity]:
+        return self._to_entity(model)
 
-        model = (
-        self.db.query(PointTurismModel)
-        .filter(PointTurismModel.id == entity.id)
-        .first()
-    )
+    async def update(self, entity: PointTurismEntity) -> Optional[PointTurismEntity]:
+        model = await self.get_model_by_id(entity.id)
         if not model:
             return None
-        model.name = entity.name or model.name
-        model.image = entity.image or model.image
-        model.description = entity.description if entity.description is not None else model.description
-        model.category_id = entity.category_id if entity.category_id is not None else model.category_id
-        model.city_id = entity.city_id if entity.city_id is not None else model.city_id
-        model.review = entity.review if entity.review is not None else model.review
 
-        self.db.commit()
-        self.db.refresh(model)
+        for field, value in entity.__dict__.items():
+            if value is not None:
+                setattr(model, field, value)
 
-        return PointTurismEntity(
-        id=model.id,
-        name=model.name,
-        image=model.image,
-        description=model.description,
-        category_id=model.category_id,
-        city_id=model.city_id,
-        review=model.review,
-    )
+        await self.db.commit()
+        await self.db.refresh(model)
+        return self._to_entity(model)
 
-    def delete(self, point_id: int) -> bool:
-        model = self.db.query(PointTurismModel).filter(PointTurismModel.id == point_id).first()
+    async def delete(self, point_id: int) -> bool:
+        model = await self.get_model_by_id(point_id)
         if not model:
             return False
-        self.db.delete(model)
-        self.db.commit()
+
+        await self.db.delete(model)
+        await self.db.commit()
         return True
 
-    def search_by_name(self, name: str) -> List[PointTurismEntity]:
-        points = self.db.query(PointTurismModel)\
-                        .filter(PointTurismModel.name.ilike(f"%{name}%"))\
-                        .all()
-        return [
-            PointTurismEntity(
-                id=p.id,
-                name=p.name,
-                image=p.image,
-                description=p.description,
-                category_id=p.category_id,
-                city_id=p.city_id,
-                review=p.review,
-            )
-            for p in points
-        ]
- 
-    def filter(
+    async def search_by_name(self, name: str) -> List[PointTurismEntity]:
+        stmt = select(PointTurismModel).where(
+            PointTurismModel.name.ilike(f"%{name}%")
+        )
+
+        result = await self.db.execute(stmt)
+        return [self._to_entity(p) for p in result.scalars().all()]
+
+    async def filter(
         self,
         category_id: Optional[int] = None,
         city_id: Optional[int] = None,
@@ -128,30 +84,35 @@ class PointTurismRepositoryImpl(PointTurismRepository):
         limit: Optional[int] = None,
         offset: Optional[int] = None
     ) -> List[PointTurismEntity]:
-        query = self.db.query(PointTurismModel)
 
-        if category_id is not None:
-            query = query.filter(PointTurismModel.category_id == category_id)
-        if city_id is not None:
-            query = query.filter(PointTurismModel.city_id == city_id)
-        if min_review is not None:
-            query = query.filter(PointTurismModel.review >= min_review)
-        if offset is not None:
-            query = query.offset(offset)
-        if limit is not None:
-            query = query.limit(limit)
+        stmt = select(PointTurismModel)
 
-        points = query.all()
-        return [
-            PointTurismEntity(
-                id=p.id,
-                name=p.name,
-                image=p.image,
-                description=p.description,
-                category_id=p.category_id,
-                city_id=p.city_id,
-                review=p.review,
-            )
-            for p in points
-        ]
- 
+        if category_id:
+            stmt = stmt.where(PointTurismModel.category_id == category_id)
+        if city_id:
+            stmt = stmt.where(PointTurismModel.city_id == city_id)
+        if min_review:
+            stmt = stmt.where(PointTurismModel.review >= min_review)
+        if offset:
+            stmt = stmt.offset(offset)
+        if limit:
+            stmt = stmt.limit(limit)
+
+        result = await self.db.execute(stmt)
+        return [self._to_entity(p) for p in result.scalars().all()]
+
+    async def get_model_by_id(self, point_id: int) -> Optional[PointTurismModel]:
+        stmt = select(PointTurismModel).where(PointTurismModel.id == point_id)
+        result = await self.db.execute(stmt)
+        return result.scalars().first()
+
+    def _to_entity(self, model: PointTurismModel) -> PointTurismEntity:
+        return PointTurismEntity(
+            id=model.id,
+            name=model.name,
+            images=model.image,
+            description=model.description,
+            category_id=model.category_id,
+            city_id=model.city_id,
+            review=model.review,
+        )
