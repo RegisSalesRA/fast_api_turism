@@ -12,5 +12,5 @@ class PointTurismEntity:
     category_id: Optional[int]
     city_id: Optional[int]
     image: Optional[int]
-    album: List[ImageEntity]
+    album: Optional[int]
     review: float = 0.0

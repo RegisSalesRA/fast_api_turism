@@ -9,12 +9,15 @@ class PointTurismModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
-    image = Column(String(255), nullable=False)
     description = Column(String, nullable=True)
     review = Column(Float, default=0.0)
+    image_id = Column(Integer, ForeignKey("image.id"), nullable=True)
+    album_id = Column(Integer, ForeignKey("album.id"), nullable=True)
     category_id = Column(Integer, ForeignKey("category.id"), nullable=True)
     city_id = Column(Integer, ForeignKey("cities.id"), nullable=True)
 
+    image = relationship("CategoryModel", backref="point_turisms")
+    album = relationship("CategoryModel", backref="point_turisms")
     category = relationship("CategoryModel", backref="point_turisms")
     city = relationship("CityModel", backref="point_turisms")
 

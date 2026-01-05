@@ -110,7 +110,8 @@ class PointTurismRepositoryImpl(PointTurismRepository):
         return PointTurismEntity(
             id=model.id,
             name=model.name,
-            images=model.image,
+            image=model.image,
+            album=model.album,
             description=model.description,
             category_id=model.category_id,
             city_id=model.city_id,
