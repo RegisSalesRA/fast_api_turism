@@ -24,11 +24,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(user_router.router)
 app.include_router(point_turism_router.router)
 app.include_router(category_router.router)
 app.include_router(city_router.router)
-app.include_router(user_router.router)
-app.include_router(review_router.router)
 app.include_router(image_router.router)
 app.include_router(album_router.router)
 app.include_router(favorite_router.router)
+app.include_router(review_router.router)
