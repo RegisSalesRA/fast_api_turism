@@ -7,7 +7,7 @@ class ReviewModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
-    point_turism_id = Column(Integer, ForeignKey("point_turism.id"), nullable=False)
+    point_turism_id = Column(Integer, ForeignKey("point_turisms.id"), nullable=False)
     rating = Column(Float, nullable=False)
     comment = Column(String(1000), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

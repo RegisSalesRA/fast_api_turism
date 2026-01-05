@@ -7,7 +7,7 @@ class FavoriteModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
-    point_turism_id = Column(Integer, ForeignKey("point_turism.id"), nullable=False)
+    point_turism_id = Column(Integer, ForeignKey("point_turisms.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
