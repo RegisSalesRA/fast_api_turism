@@ -2,6 +2,7 @@ from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.data.models.image_model import ImageModel
+from app.data.models.point_turism_model import PointTurismModel
 from app.domain.entities.image_entity import ImageEntity
 from app.domain.repositories.image_repository import ImageRepository
 
@@ -16,6 +17,8 @@ class ImageRepositoryImpl(ImageRepository):
     async def create(self, entity: ImageEntity) -> ImageEntity:
         model = ImageModel(
             url=entity.url,
+            album_id=entity.album_id,
+            point_turism_id=entity.point_turism_id,
         )
         self.db.add(model)
         await self.db.commit()
@@ -24,6 +27,8 @@ class ImageRepositoryImpl(ImageRepository):
         return ImageEntity(
             id=model.id,
             url=model.url,
+            album_id=model.album_id,
+            point_turism_id=model.point_turism_id,
         )
 
     async def list_all(self, limit: Optional[int] = None, offset: Optional[int] = None) -> List[ImageEntity]:
@@ -40,6 +45,8 @@ class ImageRepositoryImpl(ImageRepository):
             ImageEntity(
                 id=i.id,
                 url=i.url,
+                album_id=i.album_id,
+                point_turism_id=i.point_turism_id,
             )
             for i in images
         ]
@@ -52,6 +59,8 @@ class ImageRepositoryImpl(ImageRepository):
         return ImageEntity(
             id=i.id,
             url=i.url,
+            album_id=i.album_id,
+            point_turism_id=i.point_turism_id,
         )
 
     async def update(self, entity: ImageEntity) -> Optional[ImageEntity]:
@@ -61,6 +70,8 @@ class ImageRepositoryImpl(ImageRepository):
             return None
 
         model.url = entity.url or model.url
+        model.album_id = entity.album_id if entity.album_id is not None else model.album_id
+        model.point_turism_id = entity.point_turism_id if entity.point_turism_id is not None else model.point_turism_id
 
         await self.db.commit()
         await self.db.refresh(model)
@@ -68,6 +79,8 @@ class ImageRepositoryImpl(ImageRepository):
         return ImageEntity(
             id=model.id,
             url=model.url,
+            album_id=model.album_id,
+            point_turism_id=model.point_turism_id,
         )
 
     async def delete(self, id: int) -> bool:
@@ -78,3 +91,14 @@ class ImageRepositoryImpl(ImageRepository):
         await self.db.delete(model)
         await self.db.commit()
         return True
+
+    async def associate_image_to_point_turism(self, image_id: int, point_turism_id: int) -> None:
+        """Associar uma imagem a um ponto turístico"""
+        result = await self.db.execute(select(PointTurismModel).filter(PointTurismModel.id == point_turism_id))
+        point_turism = result.scalar_one_or_none()
+        if not point_turism:
+            raise ValueError(f"Point turism with id {point_turism_id} not found")
+        
+        point_turism.image_id = image_id
+        await self.db.commit()
+        await self.db.refresh(point_turism)

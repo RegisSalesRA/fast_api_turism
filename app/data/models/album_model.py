@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, func, Table, ForeignKey
+from sqlalchemy.orm import relationship
 from app.core.base import Base
 
 # Tabela de associação para relacionamento muitos-para-muitos entre Album e Image

@@ -3,11 +3,13 @@ from typing import List
 from app.core.exceptions.domain_exceptions import NotFoundError
 from app.core.injection_dependencies import get_review_usecase
 from app.core.pagination.schemas import PageParams, PageResponse
+from app.data.models.user_model import UserModel
 from app.domain.entities.review_entity import ReviewEntity
 from app.domain.usecases.review_usecase import ReviewUseCase
 from app.infrastructure.api.schemas.review.request.create_review import CreateReviewRequest
 from app.infrastructure.api.schemas.review.request.update_review import UpdateReviewRequest
 from app.infrastructure.api.schemas.review.response.review_detail import ReviewDetailResponse
+from app.utils.middleware import get_current_user
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
@@ -50,7 +52,9 @@ async def get_reviews_by_user(
 async def create_review(
     payload: CreateReviewRequest,
     usecase: ReviewUseCase = Depends(get_review_usecase),
+    current_user: UserModel = Depends(get_current_user),
 ):
+    """Criar avaliação - 👤 SOMENTE USUÁRIO AUTENTICADO"""
     entity = ReviewEntity(
         id=None,
         user_id=payload.user_id,
@@ -69,7 +73,9 @@ async def update_review(
     review_id: int,
     payload: UpdateReviewRequest,
     usecase: ReviewUseCase = Depends(get_review_usecase),
+    current_user: UserModel = Depends(get_current_user),
 ):
+    """Atualizar avaliação - 👤 SOMENTE USUÁRIO AUTENTICADO"""
     entity = ReviewEntity(
         id=review_id,
         user_id=None,
@@ -86,7 +92,12 @@ async def update_review(
 
 
 @router.delete("/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_review(review_id: int, usecase: ReviewUseCase = Depends(get_review_usecase)):
+async def delete_review(
+    review_id: int,
+    usecase: ReviewUseCase = Depends(get_review_usecase),
+    current_user: UserModel = Depends(get_current_user),
+):
+    """Deletar avaliação - 👤 SOMENTE USUÁRIO AUTENTICADO"""
     try:
         await usecase.delete_review(review_id)
     except NotFoundError as e:

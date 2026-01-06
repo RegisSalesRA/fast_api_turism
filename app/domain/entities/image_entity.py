@@ -7,4 +7,6 @@ from enum import Enum
 class ImageEntity:
     id: Optional[int]
     url: str
+    album_id: Optional[int] = None
+    point_turism_id: Optional[int] = None
 

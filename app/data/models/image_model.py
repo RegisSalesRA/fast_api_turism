@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, func
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func
 from app.core.base import Base
 
 
@@ -7,5 +7,8 @@ class ImageModel(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     url = Column(String(500), nullable=False)
+    album_id = Column(Integer, ForeignKey("albums.id"), nullable=True)
+    point_turism_id = Column(Integer, ForeignKey("point_turisms.id"), nullable=True)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

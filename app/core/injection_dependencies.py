@@ -58,8 +58,9 @@ async def get_review_usecase(db=Depends(get_db)):
 
 async def get_image_usecase(db=Depends(get_db)):
     repo = ImageRepositoryImpl(db)
+    point_turism_repo = PointTurismRepositoryImpl(db)
     paginator = Paginator(db)
-    usecase = ImageUseCase(repo, paginator)
+    usecase = ImageUseCase(repo, paginator, point_turism_repo)
     return usecase
 
 

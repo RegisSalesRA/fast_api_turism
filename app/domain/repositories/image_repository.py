@@ -24,3 +24,7 @@ class ImageRepository(ABC):
     @abstractmethod
     async def delete(self, id: int) -> bool:
         pass
+
+    @abstractmethod
+    async def associate_image_to_point_turism(self, image_id: int, point_turism_id: int) -> None:
+        pass

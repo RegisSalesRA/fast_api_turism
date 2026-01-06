@@ -7,4 +7,4 @@ from app.domain.entities.image_entity import ImageEntity
 @dataclass
 class AlbumEntity:
     id: Optional[int]
-    images: List[ImageEntity]
+    images: Optional[List[ImageEntity]] = None

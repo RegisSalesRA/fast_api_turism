@@ -1,7 +1,7 @@
 """add_password_hash_to_users
 
-Revision ID: c3d4e5f6g7h8
-Revises: b2c3d4e5f6g7
+Revision ID: a2b3c4d5e6f7
+Revises: 79a60dc506cd
 Create Date: 2025-01-06 11:00:00.000000
 
 """
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c3d4e5f6g7h8'
-down_revision = 'b2c3d4e5f6g7'
+revision = 'a2b3c4d5e6f7'
+down_revision = '79a60dc506cd'
 branch_labels = None
 depends_on = None
 

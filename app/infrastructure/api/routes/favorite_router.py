@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List
 from app.core.exceptions.domain_exceptions import NotFoundError
 from app.core.injection_dependencies import get_favorite_usecase
+from app.data.models.user_model import UserModel
 from app.domain.entities.favorite_entity import FavoriteEntity
 from app.domain.usecases.favorite_usecase import FavoriteUseCase
 from app.infrastructure.api.schemas.favorite.request.create_favorite import CreateFavoriteRequest
 from app.infrastructure.api.schemas.favorite.response.favorite_detail import FavoriteDetailResponse
+from app.utils.middleware import get_current_user
 
 router = APIRouter(prefix="/favorites", tags=["Favorites"])
 
@@ -41,7 +43,9 @@ async def is_favorite(
 async def create_favorite(
     payload: CreateFavoriteRequest,
     usecase: FavoriteUseCase = Depends(get_favorite_usecase),
+    current_user: UserModel = Depends(get_current_user),
 ):
+    """Criar favorito - 👤 SOMENTE USUÁRIO AUTENTICADO"""
     entity = FavoriteEntity(
         user_id=payload.user_id,
         point_turism_id=payload.point_turism_id,
@@ -57,7 +61,9 @@ async def remove_favorite(
     user_id: str,
     point_turism_id: int,
     usecase: FavoriteUseCase = Depends(get_favorite_usecase),
+    current_user: UserModel = Depends(get_current_user),
 ):
+    """Remover favorito - 👤 SOMENTE USUÁRIO AUTENTICADO"""
     try:
         await usecase.remove_favorite(user_id, point_turism_id)
     except NotFoundError as e:
