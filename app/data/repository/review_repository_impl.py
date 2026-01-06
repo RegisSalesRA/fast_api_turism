@@ -69,6 +69,25 @@ class ReviewRepositoryImpl(ReviewRepository):
             created_at=r.created_at,
         )
 
+    async def get_by_user_and_point(self, user_id: str, point_turism_id: int) -> Optional[ReviewEntity]:
+        result = await self.db.execute(
+            select(ReviewModel).filter(
+                ReviewModel.user_id == user_id,
+                ReviewModel.point_turism_id == point_turism_id
+            )
+        )
+        r = result.scalar_one_or_none()
+        if not r:
+            return None
+        return ReviewEntity(
+            id=r.id,
+            user_id=r.user_id,
+            point_turism_id=r.point_turism_id,
+            rating=r.rating,
+            comment=r.comment,
+            created_at=r.created_at,
+        )
+
     async def get_by_point_turism(self, point_turism_id: int) -> List[ReviewEntity]:
         result = await self.db.execute(
             select(ReviewModel).filter(ReviewModel.point_turism_id == point_turism_id)
@@ -109,7 +128,7 @@ class ReviewRepositoryImpl(ReviewRepository):
         if not model:
             return None
 
-        model.rating = entity.rating or model.rating
+        model.rating = entity.rating if entity.rating is not None else model.rating
         model.comment = entity.comment if entity.comment is not None else model.comment
 
         await self.db.commit()

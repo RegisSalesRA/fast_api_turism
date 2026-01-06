@@ -6,6 +6,10 @@ from app.domain.entities.review_entity import ReviewEntity
 class ReviewRepository(ABC):
 
     @abstractmethod
+    def base_query(self):
+        pass
+
+    @abstractmethod
     async def create(self, entity: ReviewEntity) -> ReviewEntity:
         pass
 
@@ -15,6 +19,10 @@ class ReviewRepository(ABC):
 
     @abstractmethod
     async def get_by_id(self, id: int) -> Optional[ReviewEntity]:
+        pass
+
+    @abstractmethod
+    async def get_by_user_and_point(self, user_id: str, point_turism_id: int) -> Optional[ReviewEntity]:
         pass
 
     @abstractmethod

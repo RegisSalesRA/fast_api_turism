@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from app.core.exceptions.domain_exceptions import NotFoundError
 from app.core.pagination.paginator import Paginator
 from app.core.pagination.schemas import PageParams
@@ -20,6 +20,11 @@ class ReviewUseCase:
         if not entity.point_turism_id:
             raise ValueError("point_turism_id must not be empty")
         
+        # Check if user already reviewed this point
+        existing = await self.repo.get_by_user_and_point(entity.user_id, entity.point_turism_id)
+        if existing:
+            raise ValueError("User already reviewed this point turism")
+
         created = await self.repo.create(entity)
         return created
 
@@ -39,19 +44,25 @@ class ReviewUseCase:
     async def get_reviews_by_user(self, user_id: str) -> List[ReviewEntity]:
         return await self.repo.get_by_user(user_id)
 
-    async def update_review(self, entity: ReviewEntity) -> ReviewEntity:
-        existing = await self.repo.get_by_id(entity.id)
+    async def update_my_review(self, user_id: str, point_turism_id: int, rating: Optional[float], comment: Optional[str]) -> ReviewEntity:
+        existing = await self.repo.get_by_user_and_point(user_id, point_turism_id)
         if existing is None:
-            raise NotFoundError(f"Review with id {entity.id} not found")
+            raise NotFoundError(f"Review not found for this point turism")
         
-        if entity.rating < 0 or entity.rating > 5:
-            raise ValueError("rating must be between 0 and 5")
+        if rating is not None:
+            if rating < 0 or rating > 5:
+                raise ValueError("rating must be between 0 and 5")
+            existing.rating = rating
+            
+        if comment is not None:
+            existing.comment = comment
 
-        return await self.repo.update(entity)
+        return await self.repo.update(existing)
 
-    async def delete_review(self, id: int) -> None:
-        existing = await self.repo.get_by_id(id)
+    async def delete_my_review(self, user_id: str, point_turism_id: int) -> None:
+        existing = await self.repo.get_by_user_and_point(user_id, point_turism_id)
         if existing is None:
-            raise NotFoundError(f"Review with id {id} not found")
+            raise NotFoundError(f"Review not found for this point turism")
 
-        await self.repo.delete(id)
+        await self.repo.delete(existing.id)
+
