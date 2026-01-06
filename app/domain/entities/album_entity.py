@@ -8,5 +8,6 @@ from app.domain.entities.image_entity import ImageEntity
 @dataclass
 class AlbumEntity:
     id: Optional[int]
-    images: Optional[List[ImageEntity]] = None
+    point_turism_id: int
+    image_urls: List[str]
     created_at: datetime = datetime.utcnow()

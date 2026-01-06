@@ -1,8 +1,7 @@
-from pydantic import BaseModel, Field, HttpUrl
-from typing import Optional, List
+from pydantic import BaseModel, Field
+from typing import Optional 
+from pydantic import BaseModel, HttpUrl, conlist
 
-
-class CreateAlbumRequest(BaseModel):
-    title: Optional[str] = Field(None, max_length=255, description="Título do álbum")
-    description: Optional[str] = Field(None, max_length=1000, description="Descrição do álbum")
-    image_urls: Optional[List[HttpUrl]] = Field(None, description="Lista de URLs das imagens do álbum")
+class AlbumCreateSchema(BaseModel):
+    point_turism_id: int
+    image_urls: conlist(HttpUrl, max_length=10) # type: ignore

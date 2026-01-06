@@ -1,10 +1,10 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List
+from typing import Optional, List
 
 
 class AlbumDetailResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    title: str | None
-    description: str | None
+    point_turism_id: Optional[int]
+    image_urls: Optional[List[str]] = None
