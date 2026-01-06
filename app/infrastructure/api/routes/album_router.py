@@ -61,6 +61,7 @@ async def update_album(
 ):
     entity = AlbumEntity(
         id=album_id,
+        point_turism_id=payload.point_turism_id,
         image_urls=[str(url) for url in payload.image_urls]
         if payload.image_urls is not None
         else None,
