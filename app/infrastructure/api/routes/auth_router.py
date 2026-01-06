@@ -57,13 +57,12 @@ async def register(
 @router.post("/register/admin", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 async def register_admin(
     request: RegisterRequest,
-    auth_usecase: AuthUseCase = Depends(get_auth_use_case),
-    current_admin: UserModel = Depends(get_current_admin_user)
+    auth_usecase: AuthUseCase = Depends(get_auth_use_case)
 ) -> RegisterResponse:
     """
-    Registrar novo usuário ADMIN (SOMENTE ADMIN)
+    Registrar novo usuário ADMIN (PÚBLICO - Sem Autenticação Necessária)
     
-    Apenas admins podem criar novos usuários com role=ADMIN
+    Qualquer pessoa pode se registrar como admin diretamente
     
     - **name**: Nome completo do usuário
     - **email**: Email único
