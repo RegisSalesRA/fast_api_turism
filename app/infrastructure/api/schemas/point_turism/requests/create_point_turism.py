@@ -16,8 +16,6 @@ class CreatePointTurismRequest(BaseModel):
             id=None,
             name=self.name,
             description=self.description,
-            image=self.image,
-            album=self.album,
             category_id=self.category_id,
             city_id=self.city_id,
             review=self.review

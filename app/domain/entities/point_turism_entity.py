@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from typing import Optional, List
 from datetime import datetime
 
-from app.domain.entities.image_entity import ImageEntity
-
 
 @dataclass
 class PointTurismEntity:
@@ -12,7 +10,5 @@ class PointTurismEntity:
     description: Optional[str]
     category_id: Optional[int]
     city_id: Optional[int]
-    image: Optional[int]
-    album: Optional[int]
     review: float = 0.0
     created_at: datetime = datetime.utcnow()

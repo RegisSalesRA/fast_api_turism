@@ -8,6 +8,4 @@ class PointTurismDetailResponse(BaseModel):
     description: str | None
     category_id: int | None
     city_id: int | None
-    image: int | None
-    album: int | None
     review: float        

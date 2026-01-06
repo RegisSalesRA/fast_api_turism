@@ -16,7 +16,6 @@ class PointTurismModel(Base):
 
     category = relationship("CategoryModel", backref="point_turisms")
     city = relationship("CityModel", backref="point_turisms")
-    images = relationship("ImageModel", backref="point_turism", foreign_keys="ImageModel.point_turism_id")
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
