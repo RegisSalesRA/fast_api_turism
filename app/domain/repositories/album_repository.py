@@ -26,9 +26,9 @@ class AlbumRepository(ABC):
         pass
 
     @abstractmethod
-    async def add_image_to_album(self, album_id: int, image_id: int) -> bool:
+    async def add_image_to_album(self, album_id: int, image_url: str) -> bool:
         pass
 
     @abstractmethod
-    async def remove_image_from_album(self, album_id: int, image_id: int) -> bool:
+    async def remove_image_from_album(self, album_id: int, image_url: str) -> bool:
         pass

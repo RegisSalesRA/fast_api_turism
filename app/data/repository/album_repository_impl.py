@@ -1,7 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from app.data.models.album_model import AlbumModel
 from app.domain.entities.album_entity import AlbumEntity
 from app.domain.repositories.album_repository import AlbumRepository
@@ -12,24 +11,23 @@ class AlbumRepositoryImpl(AlbumRepository):
         self.db = db
 
     def base_query(self):
-        return select(AlbumModel).options(selectinload(AlbumModel.image_urls))
+        return select(AlbumModel)
 
     async def create(self, entity: AlbumEntity) -> AlbumEntity:
         model = AlbumModel(
-        point_turism_id=entity.point_turism_id,
-        image_urls=entity.image_urls[:10]
-    )
+            point_turism_id=entity.point_turism_id,
+            image_urls=entity.image_urls[:10] if entity.image_urls else []
+        )
         self.db.add(model)
         await self.db.commit()
         await self.db.refresh(model)
 
         return AlbumEntity(
-        id=model.id,
-        point_turism_id=model.point_turism_id,
-        image_urls=model.image_urls,
-        created_at=model.created_at
-    )
-
+            id=model.id,
+            point_turism_id=model.point_turism_id,
+            image_urls=model.image_urls,
+            created_at=model.created_at
+        )
 
     async def list_all(self, limit: Optional[int] = None, offset: Optional[int] = None) -> List[AlbumEntity]:
         query = self.base_query()
@@ -39,13 +37,13 @@ class AlbumRepositoryImpl(AlbumRepository):
             query = query.limit(limit)
 
         result = await self.db.execute(query)
-        albums = result.unique().scalars().all()
+        albums = result.scalars().all()
 
         return [
             AlbumEntity(
                 id=a.id,
                 point_turism_id=a.point_turism_id,
-                images=[img.url for img in a.images] if a.images else [],
+                image_urls=a.image_urls,
                 created_at=a.created_at
             )
             for a in albums
@@ -53,17 +51,15 @@ class AlbumRepositoryImpl(AlbumRepository):
 
     async def get_by_id(self, id: int) -> Optional[AlbumEntity]:
         result = await self.db.execute(
-            select(AlbumModel)
-            .filter(AlbumModel.id == id)
-            .options(selectinload(AlbumModel.images))
+            select(AlbumModel).filter(AlbumModel.id == id)
         )
-        a = result.unique().scalar_one_or_none()
+        a = result.scalar_one_or_none()
         if not a:
             return None
         return AlbumEntity(
             id=a.id,
             point_turism_id=a.point_turism_id,
-            images=[img.url for img in a.images] if a.images else [],
+            image_urls=a.image_urls,
             created_at=a.created_at
         )
 
@@ -75,6 +71,9 @@ class AlbumRepositoryImpl(AlbumRepository):
 
         if entity.point_turism_id is not None:
             model.point_turism_id = entity.point_turism_id
+        
+        if entity.image_urls is not None:
+            model.image_urls = entity.image_urls[:10]
 
         await self.db.commit()
         await self.db.refresh(model)
@@ -82,7 +81,7 @@ class AlbumRepositoryImpl(AlbumRepository):
         return AlbumEntity(
             id=model.id,
             point_turism_id=model.point_turism_id,
-            images=[img.url for img in model.images] if model.images else [],
+            image_urls=model.image_urls,
             created_at=model.created_at
         )
 
@@ -95,18 +94,31 @@ class AlbumRepositoryImpl(AlbumRepository):
         await self.db.commit()
         return True
 
-    async def add_image_to_album(self, album_id: int, image_id: int) -> bool:
+    async def add_image_to_album(self, album_id: int, image_url: str) -> bool:
         result = await self.db.execute(select(AlbumModel).filter(AlbumModel.id == album_id))
         model = result.scalar_one_or_none()
         if not model:
             return False
-        await self.db.commit()
-        return True
+        
+        if len(model.image_urls) < 10:
+            # We need to make a copy to trigger SQLAlchemy change detection if it's not tracking mutations
+            current_urls = list(model.image_urls)
+            current_urls.append(image_url)
+            model.image_urls = current_urls
+            await self.db.commit()
+            return True
+        return False
 
-    async def remove_image_from_album(self, album_id: int, image_id: int) -> bool:
+    async def remove_image_from_album(self, album_id: int, image_url: str) -> bool:
         result = await self.db.execute(select(AlbumModel).filter(AlbumModel.id == album_id))
         model = result.scalar_one_or_none()
         if not model:
             return False
-        await self.db.commit()
-        return True
+        
+        if image_url in model.image_urls:
+            current_urls = list(model.image_urls)
+            current_urls.remove(image_url)
+            model.image_urls = current_urls
+            await self.db.commit()
+            return True
+        return False
