@@ -41,7 +41,6 @@ async def create_image(
     entity = ImageEntity(
         id=None,
         url=str(payload.url),
-        album_id=payload.album_id,
         point_turism_id=payload.point_turism_id,
     )
     try:
@@ -68,20 +67,6 @@ async def update_image(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
-
-@router.post("/{image_id}/point-turism/{point_turism_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def associate_image_to_point_turism(
-    image_id: int,
-    point_turism_id: int,
-    usecase: ImageUseCase = Depends(get_image_usecase),
-    current_admin: UserModel = Depends(get_current_admin_user)
-):
-    """Associar imagem a um ponto turístico - ⛔ SOMENTE ADMIN"""
-    try:
-        await usecase.associate_image_to_point_turism(image_id, point_turism_id)
-    except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.delete("/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
