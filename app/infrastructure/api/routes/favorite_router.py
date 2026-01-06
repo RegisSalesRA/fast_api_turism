@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from app.core.exceptions.domain_exceptions import NotFoundError
 from app.core.injection_dependencies import get_favorite_usecase
@@ -13,41 +13,34 @@ router = APIRouter(prefix="/favorites", tags=["Favorites"])
 
 
 @router.get("/", response_model=List[FavoriteDetailResponse])
-async def list_favorites(
-    limit: int = Query(10, ge=1, le=100),
-    offset: int = Query(0, ge=0),
+async def get_my_favorites(
     usecase: FavoriteUseCase = Depends(get_favorite_usecase),
+    current_user: UserModel = Depends(get_current_user),
 ):
-    return await usecase.list_favorites(limit, offset)
+    """Listar favoritos do usuário logado - 👤 SOMENTE USUÁRIO AUTENTICADO"""
+    return await usecase.get_user_favorites(current_user.id)
 
 
-@router.get("/user/{user_id}", response_model=List[FavoriteDetailResponse])
-async def get_user_favorites(
-    user_id: str,
-    usecase: FavoriteUseCase = Depends(get_favorite_usecase),
-):
-    return await usecase.get_user_favorites(user_id)
-
-
-@router.get("/{user_id}/{point_turism_id}", response_model=dict)
-async def is_favorite(
-    user_id: str,
+@router.get("/{point_turism_id}/check", response_model=dict)
+async def check_is_favorite(
     point_turism_id: int,
     usecase: FavoriteUseCase = Depends(get_favorite_usecase),
+    current_user: UserModel = Depends(get_current_user),
 ):
-    is_fav = await usecase.is_favorite(user_id, point_turism_id)
+    """Verificar se um ponto turístico é favorito do usuário logado"""
+    is_fav = await usecase.is_favorite(current_user.id, point_turism_id)
     return {"is_favorite": is_fav}
 
 
 @router.post("/", response_model=FavoriteDetailResponse, status_code=status.HTTP_201_CREATED)
-async def create_favorite(
+async def add_favorite(
     payload: CreateFavoriteRequest,
     usecase: FavoriteUseCase = Depends(get_favorite_usecase),
     current_user: UserModel = Depends(get_current_user),
 ):
-    """Criar favorito - 👤 SOMENTE USUÁRIO AUTENTICADO"""
+    """Adicionar aos favoritos - 👤 SOMENTE USUÁRIO AUTENTICADO"""
     entity = FavoriteEntity(
-        user_id=payload.user_id,
+        user_id=current_user.id,
         point_turism_id=payload.point_turism_id,
     )
     try:
@@ -56,15 +49,14 @@ async def create_favorite(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.delete("/{user_id}/{point_turism_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{point_turism_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_favorite(
-    user_id: str,
     point_turism_id: int,
     usecase: FavoriteUseCase = Depends(get_favorite_usecase),
     current_user: UserModel = Depends(get_current_user),
 ):
-    """Remover favorito - 👤 SOMENTE USUÁRIO AUTENTICADO"""
+    """Remover dos favoritos - 👤 SOMENTE USUÁRIO AUTENTICADO"""
     try:
-        await usecase.remove_favorite(user_id, point_turism_id)
+        await usecase.remove_favorite(current_user.id, point_turism_id)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
