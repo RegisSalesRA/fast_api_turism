@@ -13,7 +13,7 @@ MarkupSafe==3.0.3
 psycopg2-binary==2.9.11
 pydantic==2.12.3
 pydantic-settings==2.3.4
-pydantic-extra-types==2.9.2
+pydantic-extra-types==2.11.1
 pydantic_core==2.41.4
 python-dotenv==1.2.1
 python-jose==3.3.0
